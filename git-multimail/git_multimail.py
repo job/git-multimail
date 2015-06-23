@@ -2713,10 +2713,11 @@ class Push(object):
             ])
         )
 
-    def __init__(self, changes, ignore_other_refs=False):
+    def __init__(self, environment, changes, ignore_other_refs=False):
         self.changes = sorted(changes, key=self._sort_key)
         self.__other_ref_sha1s = None
         self.__cached_commits_spec = {}
+        self.environment = environment
 
         if ignore_other_refs:
             self.__other_ref_sha1s = set()
@@ -2951,7 +2952,7 @@ def run_as_post_receive_hook(environment, mailer):
         changes.append(
             ReferenceChange.create(environment, oldrev, newrev, refname)
             )
-    push = Push(changes)
+    push = Push(environment, changes)
     push.send_emails(mailer, body_filter=environment.filter_body)
 
 
@@ -2964,7 +2965,7 @@ def run_as_update_hook(environment, mailer, refname, oldrev, newrev, force_send=
             refname,
             ),
         ]
-    push = Push(changes, force_send)
+    push = Push(environment, changes, force_send)
     push.send_emails(mailer, body_filter=environment.filter_body)
 
 
